@@ -1,0 +1,74 @@
+import React, { useEffect, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import AboutPage from './pages/AboutPage';
+import CollectionsPage from './pages/CollectionsPage';
+
+export default function App() {
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+  
+  const springConfig = { damping: 25, stiffness: 250 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const moveCursor = (e) => {
+      cursorX.set(e.clientX - 8);
+      cursorY.set(e.clientY - 8);
+    };
+    window.addEventListener('mousemove', moveCursor);
+    return () => window.removeEventListener('mousemove', moveCursor);
+  }, []);
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-[#FDFCF9] text-[#1C1C1C] font-sans antialiased relative selection:bg-[#EAE6DF]">
+        
+        {/* Global Luxury Trailing Cursor */}
+        <motion.div
+          className="fixed top-0 left-0 w-4 h-4 bg-[#1C1C1C] rounded-full pointer-events-none z-50 mix-blend-difference hidden md:block"
+          style={{ x: cursorX, y: cursorY }}
+        />
+        <motion.div
+          className="fixed top-0 left-0 w-8 h-8 border border-[#1C1C1C] rounded-full pointer-events-none z-50 hidden md:block"
+          style={{ x: useMotionValue(cursorXSpring), y: useMotionValue(cursorYSpring) }}
+          animate={{ scale: isHovered ? 1.8 : 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        />
+
+        {/* Constant Top Multi-Language Marquee */}
+        <div className="fixed top-0 left-0 w-full h-7 bg-[#1C1C1C] text-[#FDFCF9] overflow-hidden z-40 flex items-center text-xs tracking-widest uppercase">
+          <div className="whitespace-nowrap flex animate-[marquee_30s_linear_infinite]">
+            {Array(4).fill("Habbit ✦ हैबिट ✦ ஹேபிட் ✦ హాబిట్ ✦ হ্যাবিট ✦ ਹੈਬਿਟ ✦ હૅબિટ ✦ ಹ್ಯಾಬಿಟ್ ✦ ಹಾಬಿಟ್ ✦ ಹ್ಯಾಬಿಟ್ ✦ ہیبٹ ✦ ହାବିଟ୍ ✦ ").map((txt, idx) => (
+              <span key={idx} className="mx-4 font-serif">{txt}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Primary Luxury Navigation Bar */}
+        <nav className="fixed top-7 left-0 w-full h-20 bg-[#FDFCF9]/80 backdrop-blur-md flex items-center justify-between px-8 md:px-16 z-30 border-b border-[#1C1C1C]/5">
+          <Link to="/" className="font-serif text-2xl tracking-wide font-light">Habbit</Link>
+          <div className="flex space-x-8 text-xs tracking-widest uppercase">
+            <Link to="/collections" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="hover:opacity-60 transition-opacity">Collections</Link>
+            <Link to="/about" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="hover:opacity-60 transition-opacity">Our Legacy</Link>
+          </div>
+          <div className="flex space-x-4 opacity-80">
+            <span className="text-xs tracking-widest font-light cursor-pointer">CART (0)</span>
+          </div>
+        </nav>
+
+        {/* Dynamic Route Content Wrapper */}
+        <div className="pt-27">
+          <Routes>
+            <Route path="/" element={<CollectionsPage setIsHovered={setIsHovered} />} />
+            <Route path="/collections" element={<CollectionsPage setIsHovered={setIsHovered} />} />
+            <Route path="/about" element={<AboutPage setIsHovered={setIsHovered} />} />
+          </Routes>
+        </div>
+
+      </div>
+    </Router>
+  );
+}
